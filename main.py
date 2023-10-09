@@ -9,7 +9,7 @@ import math
 init()
 
 
-cliente = Client(config.API_KEY, config.API_SECRET, tld='com')
+cliente = Client(config.API_KEY, config.API_SECRET)
 
 simbolo = 'BTCUSDT'
 simboloBalance = 'BTC'
