@@ -11,8 +11,8 @@ init()
 
 cliente = Client(config.API_KEY, config.API_SECRET, tld='com')
 
-simbolo = 'MANAUSDT'
-simboloBalance = 'MANA'
+simbolo = 'BTCUSDT'
+simboloBalance = 'BTC'
 cantidadOrden = 7 # cantidad a comprar (algunas monedas COMO BTC con compras menores a 20 USD tira errore min notional)
 
 decimales = '{:.4f}' # ACA CAMBIO EL PRECIO DE LOS DECIMALES EN LA COMPRA, SI PONGO MUCHOS DECIMALES Y LA MONEDA NO ACEPTA ME TIRA ERROR DE PRICE_FILTER 
@@ -79,7 +79,7 @@ while 1:
                     sum_simbolo += simbolo_quantity * float(_price["price"])
             except:
                 pass
-    current_simbolo_price_USD = cliente.get_symbol_ticker(symbol="MANAUSDT")["price"]
+    current_simbolo_price_USD = cliente.get_symbol_ticker(symbol="BTCUSDT")["price"]
     own_usd = sum_simbolo * float(current_simbolo_price_USD)
     print(" Balance en billetera => "  + simboloBalance + " %.8f  == " % sum_simbolo, end="")
     print("USDT %.8f " % own_usd)
@@ -126,11 +126,11 @@ while 1:
 
     
 
-    print("Cantidad minima de ordenes de compra es: " + requestMinQtOrder['filters'][2]['minQty'])
-
-
-    minQtOrder = float(requestMinQtOrder['filters'][2]['minQty'])
-
+    print("Cantidad minima de ordenes de compra es: ", requestMinQtOrder['filters'][1]['minQty'])
+    try:
+        minQtOrder = float(requestMinQtOrder['filters'][1]['minQty'])
+    except KeyError:
+        minQtOrder = 0.0
     if (minQtOrder !=1 ):
         print("ordenes acepta decimales")
         order_local = '{:.8f}'.format(cantidadOrden*0.999)
