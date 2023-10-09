@@ -81,7 +81,7 @@ while 1:
                 pass
     current_simbolo_price_USD = cliente.get_symbol_ticker(symbol="BTCUSDT")["price"]
     own_usd = sum_simbolo * float(current_simbolo_price_USD)
-    print(" Balance en billetera => ", simboloBalance , " %.8f  == " % sum_simbolo, end="")
+    print(" Balance en billetera => ", simboloBalance , " %.8f  == " % sum_simbolo)
     print("USDT %.8f " % own_usd)
     
     time.sleep(10)
