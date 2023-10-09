@@ -81,7 +81,7 @@ while 1:
                 pass
     current_simbolo_price_USD = cliente.get_symbol_ticker(symbol="BTCUSDT")["price"]
     own_usd = sum_simbolo * float(current_simbolo_price_USD)
-    print(" Balance en billetera => "  + simboloBalance + " %.8f  == " % sum_simbolo, end="")
+    print(" Balance en billetera => ", simboloBalance , " %.8f  == " % sum_simbolo, end="")
     print("USDT %.8f " % own_usd)
     
     time.sleep(10)
@@ -90,22 +90,22 @@ while 1:
 
     requestMinQtOrder = cliente.get_symbol_info(simbolo)
     ordenes = cliente.get_open_orders(symbol=simbolo)
-    print(Fore.YELLOW + "Ordenes actuales abiertas") # si devuelve [] esta vacio
+    print(Fore.YELLOW , "Ordenes actuales abiertas") # si devuelve [] esta vacio
     
 
    
     if(len(ordenes) != 0 ):
         print(len(ordenes))
-        print("Cantidad a vender   " + str(math.floor(sum_simbolo)))
-        print("Precio de venta si BAJA   " + ordenes[0]['price'])
-        print("Precio de venta si SUBE   " + ordenes[1]['price'])
+        print("Cantidad a vender   " , str(math.floor(sum_simbolo)))
+        print("Precio de venta si BAJA   " , ordenes[0]['price'])
+        print("Precio de venta si SUBE   " , ordenes[1]['price'])
         time.sleep(20) #mando el robot a dormir porque EN TEORIA abrio un orden, dejamos que el mercado opere.
         continue
 
     
 
     if(len(ordenes) !=0 ):
-        print(Fore.RED + " Hay ordenes abiertas, no se compra")
+        print(Fore.RED , " Hay ordenes abiertas, no se compra")
         time.sleep(10)
         continue
 
@@ -140,17 +140,17 @@ while 1:
     
     # importante acomodar los decimales de la moneda porque arroja Error Price Filter.
 
-    print(Fore.YELLOW + "--------" + simbolo + "---------")
-    print(" Precio actual de " + simbolo + "es: " + str(decimales.format(symbolPrice))) #el .8 es la cantidad de decimales que no trae el simbolo 
+    print(Fore.YELLOW , "--------" , simbolo , "---------")
+    print(" Precio actual de " , simbolo , "es: " , str(decimales.format(symbolPrice))) #el .8 es la cantidad de decimales que no trae el simbolo 
     print("*******************************")
-    print(Fore.GREEN + " Precio MA5 " + str(decimales.format(ma5)))
-    print(Fore.YELLOW + " Precio MA10 " + str(decimales.format(ma10)))
-    print(Fore.RED + " Precio MA20 " + str(decimales.format(ma20)))
+    print(Fore.GREEN , " Precio MA5 " , str(decimales.format(ma5)))
+    print(Fore.YELLOW , " Precio MA10 " , str(decimales.format(ma10)))
+    print(Fore.RED , " Precio MA20 " , str(decimales.format(ma20)))
     print(" Precio en que se va a comprar" + str(decimales.format(ma20*0.995)))
 
 
     if ( symbolPrice > ma5 and ma5 > ma10 and ma10 > ma20):
-        print(Fore.GREEN + "Comprando si no hay otras ordenes abiertas")
+        print(Fore.GREEN , "Comprando si no hay otras ordenes abiertas")
     
     # ORDENES DE PRUEBA 
         #order = cliente.create_test_order(
@@ -173,10 +173,10 @@ while 1:
 
         #Pongo orden OCO
         print("COLOCANDO ORDEN OCO")
-        print("StopLimitPrice >   " +str(decimales.format(symbolPrice*0.985)),)
-        print("Cantidad >   " + str(math.floor(sum_simbolo)))
-        print("StopPrice >   " + str(decimales.format(symbolPrice*0.99)))
-        print("Precio >   " + str(decimales.format(symbolPrice*1.01)))
+        print("StopLimitPrice >   " , str(decimales.format(symbolPrice*0.985)),)
+        print("Cantidad >   " , str(math.floor(sum_simbolo)))
+        print("StopPrice >   " , str(decimales.format(symbolPrice*0.99)))
+        print("Precio >   " , str(decimales.format(symbolPrice*1.01)))
 
         ordenOCO = cliente.create_oco_order(
             symbol = simbolo,
@@ -192,7 +192,7 @@ while 1:
         time.sleep(20) #mando el robot a dormir porque EN TEORIA abrio un orden, dejamos que el mercado opere.
 
     else: 
-        print(Fore.RED + "No se cumplen las condiciones de compra")
+        print(Fore.RED , "No se cumplen las condiciones de compra")
         time.sleep(20) #mando el robot a dormir porque EN TEORIA abrio un orden, dejamos que el mercado opere.
     
     # FIN ordenes de prueba
