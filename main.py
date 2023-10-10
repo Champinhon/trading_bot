@@ -117,9 +117,10 @@ while True:
         continue
 
     requestMinQtOrder = cliente.get_symbol_info(simbolo)
-    print("Cantidad minima de compra es: ", requestMinQtOrder['filters'][2])
-    print("Cantidad minima de ordenes de compra es: ", requestMinQtOrder['filters'][2]['minQty'])
-    minQtOrder = float(requestMinQtOrder['filters'][2]['minQty'])
+    print("Cantidad minima de compra es: ", requestMinQtOrder['filters'])
+    print("Cantidad minima de compra es: ", requestMinQtOrder['filters'][3])
+    print("Cantidad minima de ordenes de compra es: ", requestMinQtOrder['filters'][3]['minQty'])
+    minQtOrder = float(requestMinQtOrder['filters'][3]['minQty'])
     if (minQtOrder != 1):
         print("ordenes acepta decimales")
         order_local = '{:.8f}'.format(cantidadOrden*0.999)
