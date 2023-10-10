@@ -88,7 +88,7 @@ while True:
     requestMinQtOrder = cliente.get_symbol_info(simbolo)
     ordenes = cliente.get_open_orders(symbol=simbolo)
     print(Fore.YELLOW, "Ordenes actuales abiertas")  # si devuelve [] está vacío
-
+    print(ordenes)
     if(len(ordenes) != 0):
         print(len(ordenes))
         print("Cantidad a vender   ", str(math.floor(sum_simbolo)))
