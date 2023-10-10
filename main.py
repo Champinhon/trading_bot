@@ -14,7 +14,7 @@ simbolo = 'BTCUSDT'
 simboloBalance = 'BTC'
 cantidadOrden = 0.00299  # cantidad a comprar (algunas monedas COMO BTC con compras menores a 20 USD tiran errores de min notional)
 
-decimales = '{:.4f}'  # ACA CAMBIO EL PRECIO DE LOS DECIMALES EN LA COMPRA, SI PONGO MUCHOS DECIMALES Y LA MONEDA NO ACEPTA ME TIRA ERROR DE PRICE_FILTER
+decimales = '{:.3f}'  # ACA CAMBIO EL PRECIO DE LOS DECIMALES EN LA COMPRA, SI PONGO MUCHOS DECIMALES Y LA MONEDA NO ACEPTA ME TIRA ERROR DE PRICE_FILTER
 
 def _ma5_():
 
