@@ -170,12 +170,12 @@ while True:
         ordenOCO = cliente.create_oco_order(
             symbol=simbolo,
             side=SIDE_SELL,
-            stopLimitPrice=str(decimales.format(symbolPrice*0.985)),
+            stopLimitPrice=(decimales.format(symbolPrice*0.985)),
             stopLimitTimeInForce=TIME_IN_FORCE_GTC,
             ## Error  LOT SIZE es porque no soporta decimales en quantity
-            quantity=str(math.floor(sum_simbolo)),  # BINANCE cobra un fee, tarifa. Sino va a tirar un error de insuficiente FOUNDS. O Error LOT SIZE.
-            stopPrice=str(decimales.format(symbolPrice*0.99)),
-            price=str(decimales.format(symbolPrice*1.01)),
+            quantity=(math.floor(sum_simbolo)),  # BINANCE cobra un fee, tarifa. Sino va a tirar un error de insuficiente FOUNDS. O Error LOT SIZE.
+            stopPrice=(decimales.format(symbolPrice*0.99)),
+            price=(decimales.format(symbolPrice*1.01)),
         )
 
         time.sleep(20)  # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
