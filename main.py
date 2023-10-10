@@ -127,10 +127,7 @@ while 1:
     
 
     print("Cantidad minima de ordenes de compra es: ", requestMinQtOrder['filters'][1]['minQty'])
-    try:
-        minQtOrder = float(requestMinQtOrder['filters'][1]['minQty'])
-    except KeyError:
-        minQtOrder = 0.0
+    minQtOrder = float(requestMinQtOrder['filters'][1]['minQty'])
     if (minQtOrder !=1 ):
         print("ordenes acepta decimales")
         order_local = '{:.8f}'.format(cantidadOrden*0.999)
