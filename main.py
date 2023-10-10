@@ -117,10 +117,8 @@ while True:
         continue
 
     requestMinQtOrder = cliente.get_symbol_info(simbolo)
-    print("Cantidad minima de compra es: ", requestMinQtOrder['filters'])
-    print("Cantidad minima de compra es: ", requestMinQtOrder['filters'][3])
-    print("Cantidad minima de ordenes de compra es: ", requestMinQtOrder['filters'][3]['minQty'])
-    minQtOrder = float(requestMinQtOrder['filters'][3]['minQty'])
+    minQtOrder = float(requestMinQtOrder['filters'][1]['minQty'])
+    print("minQty", minQtOrder)
     if (minQtOrder != 1):
         print("ordenes acepta decimales")
         order_local = '{:.8f}'.format(cantidadOrden*0.999)
@@ -166,18 +164,15 @@ while True:
         print("Cantidad >   ", str(math.floor(sum_simbolo)))
         print("StopPrice >   ", str(decimales.format(symbolPrice*0.99)))
         print("Precio >   ", str(decimales.format(symbolPrice*1.01)))
-
         ordenOCO = cliente.create_oco_order(
             symbol=simbolo,
             side=SIDE_SELL,
-            stopLimitPrice=(decimales.format(symbolPrice*0.985)),
-            stopLimitTimeInForce=TIME_IN_FORCE_GTC,
-            ## Error  LOT SIZE es porque no soporta decimales en quantity
-            quantity=(math.floor(sum_simbolo)),  # BINANCE cobra un fee, tarifa. Sino va a tirar un error de insuficiente FOUNDS. O Error LOT SIZE.
-            stopPrice=(decimales.format(symbolPrice*0.99)),
-            price=(decimales.format(symbolPrice*1.01)),
+            quantity=order_local,
+            price=str(decimales.format(symbolPrice*1.01)),
+            stopPrice=str(decimales.format(symbolPrice*0.99)),
+            stopLimitPrice=str(decimales.format(symbolPrice*0.985)),
+            stopLimitTimeInForce=TIME_IN_FORCE_GTC
         )
-
         time.sleep(20)  # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
 
     else:
