@@ -13,7 +13,7 @@ cliente = Client(config.API_KEY, config.API_SECRET)
 
 simbolo = 'BTCUSDT'
 simboloBalance = 'BTC'
-cantidadOrden = 0.0034 # cantidad a comprar (algunas monedas COMO BTC con compras menores a 20 USD tira errore min notional)
+cantidadOrden = 0.003 # cantidad a comprar (algunas monedas COMO BTC con compras menores a 20 USD tira errore min notional)
 
 decimales = '{:.4f}' # ACA CAMBIO EL PRECIO DE LOS DECIMALES EN LA COMPRA, SI PONGO MUCHOS DECIMALES Y LA MONEDA NO ACEPTA ME TIRA ERROR DE PRICE_FILTER 
 
