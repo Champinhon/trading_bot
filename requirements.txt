@@ -2,3 +2,5 @@ python-binance
 gunicorn
 numpy
 colorama
+mysql-connector-python
+time
