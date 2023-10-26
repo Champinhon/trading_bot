@@ -12,7 +12,11 @@ import os
 import time
 
 init()
-
+def obtenerFechaActual():
+    from datetime import datetime
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    return dt_string
 
 cliente = Client(config.API_KEY, config.API_SECRET)
 # User ID to check
@@ -32,15 +36,15 @@ decimales = '{:.3f}'
 # ACA CAMBIO EL PRECIO DE LOS DECIMALES EN LA COMPRA, SI PONGO MUCHOS DECIMALES Y LA MONEDA NO ACEPTA ME TIRA ERROR DE PRICE_FILTER
 # Initialize colorama
 init()
-def insert_log_message(message):
+def insert_log_message(user_id, symbol, quantity, price, details):
     try:
         db_params = settings.MYSQL_DATABASES["default"]
         conn = mysql.connector.connect(**db_params)
         cursor = conn.cursor()
 
         # Insert the log message into the bot_logs table
-        insert_query = "INSERT INTO bot_logs (message) VALUES (%s)"
-        cursor.execute(insert_query, (message,))
+        insert_query = f'INSERT INTO artifind_APP_purchaselog (user_id, purchase_time, symbol, quantity, price, details) VALUES ({user_id},{obtenerFechaActual()},{symbol},{quantity},{price},{details})'
+        cursor.execute(insert_query, (user_id, message))
         conn.commit()
 
     except Error as e:
@@ -48,6 +52,23 @@ def insert_log_message(message):
     finally:
         cursor.close()
         conn.close()
+def insert_sold_log(user, symbol, quantity, price, details):
+    try:
+        db_params = settings.MYSQL_DATABASES["default"]
+        conn = mysql.connector.connect(**db_params)
+        cursor = conn.cursor()
+
+        # Insert the sold log into the 'sold_logs' table
+        insert_query = f'INSERT INTO artifind_APP_soldlog (user_id, purchase_time, symbol, quantity, price, details) VALUES ({user_id},{obtenerFechaActual()},{symbol},{quantity},{price},{details})'
+        cursor.execute(insert_query, (user.id, symbol, quantity, price, details))
+        conn.commit()
+    except Exception as e:
+        print(f"Error while inserting sold log into the database: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
+
 # Database connection parameters
 db_params = {
     'host': 'mysql-151901-0.cloudclusters.net',
@@ -206,7 +227,8 @@ while True:
                         if (symbolPrice > ma5 and ma5 > ma10 and ma10 > ma20):
                             print(Fore.GREEN, "Comprando si no hay otras ordenes abiertas")
                             purchase_message = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"
-                            insert_log_message(purchase_message)
+                            
+                            insert_sold_log(1, simboloBalance, order_local, str(decimales.format(symbolPrice*1.01)), purchase_message)
                             # ORDENES DE PRUEBA
                             # order = cliente.create_test_order(
                             # symbol = simbolo,
@@ -241,15 +263,17 @@ while True:
                                 stopLimitPrice=str(decimales.format(symbolPrice*0.985)),
                                 stopLimitTimeInForce=TIME_IN_FORCE_GTC
                             )
-                            time.sleep(20)  # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
-
+                            time.sleep(20)
+                              # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
+                            messageSold = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"
+                            insert_sold_log(1, simboloBalance, order_local, str(decimales.format(symbolPrice*1.01)), messageSold)
                         else:
                             print(Fore.RED, "No se cumplen las condiciones de compra")
                             time.sleep(20)  # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
                             pass
                 except Exception as e:
                     print("Error in main loop: ", e)
-                    time.sleep(60)  
+                    time.sleep(60)
                     if e == 'APIError(code=-2010): Account has insufficient balance for requested action.':
                         print('No hay saldo suficiente en la cuenta para realizar la operación')
                     print("Bot is not activated. Skipping execution.")
