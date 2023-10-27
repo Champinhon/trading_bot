@@ -280,7 +280,7 @@ while True:
                 except Exception as e:
                     print("Error in main loop: ", e)
                     time.sleep(60)
-                    if e == 'APIError(code=-2010): Account has insufficient balance for requested action.':
+                    if 'APIError(code=-2010): Account has insufficient balance for requested action' in e:
                         print('No hay saldo suficiente en la cuenta para realizar la operación')
                     print("Bot is not activated. Skipping execution. 1")
                     conn.close()
