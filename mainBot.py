@@ -227,11 +227,7 @@ while True:
 
                         if (symbolPrice > ma5 and ma5 > ma10 and ma10 > ma20):
                             print(Fore.GREEN, "Comprando si no hay otras ordenes abiertas")
-                            purchase_message = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"
 
-                            messageSold = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"
-
-                            insert_sold_log(1, simboloBalance, cantidadOrden, str(decimales.format(symbolPrice*1.01)), messageSold)
                             # ORDENES DE PRUEBA
                             # order = cliente.create_test_order(
                             # symbol = simbolo,
@@ -267,6 +263,7 @@ while True:
                                 stopLimitTimeInForce=TIME_IN_FORCE_GTC
                             )
                             time.sleep(20)
+                            print(ordenOCO)
                               # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
                             messageSold = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"
                             
