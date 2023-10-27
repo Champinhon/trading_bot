@@ -10,6 +10,17 @@ import math
 import mysql.connector
 import os
 import time
+from datetime import datetime
+
+# Database connection parameters
+db_params = {
+    'host': 'mysql-151901-0.cloudclusters.net',
+    'user': 'admin',
+    'password': 'eAZJ0Oeq',
+    'database': 'artifind',
+    'port': 19240,
+}
+
 
 init()
 def obtenerFechaActual():
@@ -35,49 +46,41 @@ cantidadOrden = 0.00299
 decimales = '{:.3f}'
 # ACA CAMBIO EL PRECIO DE LOS DECIMALES EN LA COMPRA, SI PONGO MUCHOS DECIMALES Y LA MONEDA NO ACEPTA ME TIRA ERROR DE PRICE_FILTER
 # Initialize colorama
-init()
 def insert_log_message(user_id, symbol, quantity, price, details):
     try:
-        db_params = settings.MYSQL_DATABASES["default"]
         conn = mysql.connector.connect(**db_params)
         cursor = conn.cursor()
-
+        purchase_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         # Insert the log message into the bot_logs table
-        insert_query = f'INSERT INTO artifind_APP_purchaselog (user_id, purchase_time, symbol, quantity, price, details) VALUES ({user_id},{obtenerFechaActual()},{symbol},{quantity},{price},{details})'
-        cursor.execute(insert_query, (user_id, message))
+        insert_query = 'INSERT INTO artifind_APP_purchaselog (user_id, purchase_time, symbol, quantity, price, details) VALUES ({},{},{},{},{},{})'.format(user_id, purchase_time, symbol, quantity, price, details)
+        cursor.execute(insert_query, (user_id, purchase_time, symbol, quantity, price, details))
         conn.commit()
 
     except Error as e:
-        print(f"Error while inserting log message into the database: {e}")
+        print("Error while inserting log message into the database: {}".format(e))
     finally:
         cursor.close()
         conn.close()
-def insert_sold_log(user, symbol, quantity, price, details):
+def insert_sold_log(user_id, symbol, quantity, price, details):
     try:
-        db_params = settings.MYSQL_DATABASES["default"]
         conn = mysql.connector.connect(**db_params)
         cursor = conn.cursor()
 
-        # Insert the sold log into the 'sold_logs' table
-        insert_query = f'INSERT INTO artifind_APP_soldlog (user_id, purchase_time, symbol, quantity, price, details) VALUES ({user_id},{obtenerFechaActual()},{symbol},{quantity},{price},{details})'
-        cursor.execute(insert_query, (user.id, symbol, quantity, price, details))
+        # Format the current datetime in the correct format
+        sale_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Define the SQL query with placeholders
+        insert_query = 'INSERT INTO artifind_APP_soldlog (user_id, sale_time, symbol, quantity, price, details) VALUES (%s, %s, %s, %s, %s, %s)'
+
+        # Pass the parameters as a tuple to the execute method, including the formatted sale_time
+        cursor.execute(insert_query, (user_id, sale_time, symbol, quantity, price, details))
         conn.commit()
+
     except Exception as e:
-        print(f"Error while inserting sold log into the database: {e}")
+        print("Error while inserting log message into the database: {}".format(e))
     finally:
         cursor.close()
         conn.close()
-
-
-# Database connection parameters
-db_params = {
-    'host': 'mysql-151901-0.cloudclusters.net',
-    'user': 'admin',
-    'password': 'eAZJ0Oeq',
-    'database': 'artifind',
-    'port': 19240,
-}
-
 
 
 def _ma5_():
@@ -144,7 +147,7 @@ while True:
             cursor = conn.cursor(dictionary=True)
 
             # Query the database to check the bot status
-            cursor.execute(f"SELECT bot_activado FROM artifind_APP_botactivationstatus WHERE user_id = {user_id}")
+            cursor.execute("SELECT bot_activado FROM artifind_APP_botactivationstatus WHERE user_id = {}".format(user_id))
             bot_status = cursor.fetchone()
 
             if bot_status and bot_status['bot_activado'] == 1:
@@ -170,9 +173,7 @@ while True:
                         own_usd = sum_simbolo * float(current_simbolo_price_USD)
                         print(" Balance en billetera => ", simboloBalance, " %.8f  == " % sum_simbolo)
                         print("USDT %.8f " % own_usd)
-
                         time.sleep(10)
-
                         requestMinQtOrder = cliente.get_symbol_info(simbolo)
                         ordenes = cliente.get_open_orders(symbol=simbolo)
                         print(Fore.YELLOW, "Ordenes actuales abiertas")  # si devuelve [] está vacío
@@ -227,8 +228,10 @@ while True:
                         if (symbolPrice > ma5 and ma5 > ma10 and ma10 > ma20):
                             print(Fore.GREEN, "Comprando si no hay otras ordenes abiertas")
                             purchase_message = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"
-                            
-                            insert_sold_log(1, simboloBalance, order_local, str(decimales.format(symbolPrice*1.01)), purchase_message)
+
+                            messageSold = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"
+
+                            insert_sold_log(1, simboloBalance, cantidadOrden, str(decimales.format(symbolPrice*1.01)), messageSold)
                             # ORDENES DE PRUEBA
                             # order = cliente.create_test_order(
                             # symbol = simbolo,
@@ -266,7 +269,10 @@ while True:
                             time.sleep(20)
                               # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
                             messageSold = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"
-                            insert_sold_log(1, simboloBalance, order_local, str(decimales.format(symbolPrice*1.01)), messageSold)
+                            
+                            insert_sold_log(1, simboloBalance, cantidadOrden, str(decimales.format(symbolPrice*1.01)), messageSold)
+
+
                         else:
                             print(Fore.RED, "No se cumplen las condiciones de compra")
                             time.sleep(20)  # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
@@ -276,7 +282,7 @@ while True:
                     time.sleep(60)
                     if e == 'APIError(code=-2010): Account has insufficient balance for requested action.':
                         print('No hay saldo suficiente en la cuenta para realizar la operación')
-                    print("Bot is not activated. Skipping execution.")
+                    print("Bot is not activated. Skipping execution. 1")
                     conn.close()
 
                     # Remove the lock file to allow the script to run again
@@ -286,7 +292,7 @@ while True:
             # Close the database connection
             else:
                 # Bot is not activated, remove the lock file
-                print("Bot is not activated. Skipping execution.")
+                print("Bot is not activated. Skipping execution. 2")
                 conn.close()
                 # Remove the lock file to allow the script to run again
                 os.remove(lock_file)
@@ -296,6 +302,6 @@ while True:
             os.remove(lock_file)
     except Exception as e:
         print(f"Error: {e}")
-
+        
     # Wait for 10 seconds before the next check
     time.sleep(10)
