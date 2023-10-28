@@ -265,8 +265,7 @@ while True:
                             time.sleep(20)
                             print(ordenOCO)
                               # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
-                            messageSold = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"
-                            
+                            messageSold = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"        
                             insert_sold_log(1, simboloBalance, cantidadOrden, str(decimales.format(symbolPrice*1.01)), messageSold)
 
 
@@ -276,9 +275,9 @@ while True:
                             pass
                 except Exception as e:
                     print("Error in main loop: ", e)
+                    messageSold = f'{e}'
+                    insert_sold_log(1, simboloBalance, cantidadOrden, str(decimales.format(symbolPrice*1.01)), messageSold)
                     time.sleep(60)
-                    if 'APIError(code=-2010): Account has insufficient balance for requested action' in e:
-                        print('No hay saldo suficiente en la cuenta para realizar la operación')
                     print("Bot is not activated. Skipping execution. 1")
                     conn.close()
 
