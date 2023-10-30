@@ -42,8 +42,8 @@ cliente = Client(config.API_KEY, config.API_SECRET)
 # Trading parameters
 simbolo = 'BTCUSDT'
 simboloBalance = 'BTC'
-cantidadOrden = 0.00299
-decimales = '{:.3f}'
+cantidadOrden =  0.0004
+print(cantidadOrden)
 # ACA CAMBIO EL PRECIO DE LOS DECIMALES EN LA COMPRA, SI PONGO MUCHOS DECIMALES Y LA MONEDA NO ACEPTA ME TIRA ERROR DE PRICE_FILTER
 # Initialize colorama
 def insert_log_message(user_id, symbol, quantity, price, details):
@@ -153,10 +153,9 @@ while True:
             if bot_status and bot_status['bot_activado'] == 1:
                 # Bot is activated, run the trading logic
                 sum_simbolo = 0.0
+                balances = cliente.get_account()
                 try:
                         ## Calculamos el balance en cuenta para poner una orden OCO exacta y evitar LotSize o insuficent balance
-                        sum_simbolo = 0.0
-                        balances = cliente.get_account()
                         for _balance in balances["balances"]:
                             asset = _balance["asset"]
                             if float(_balance["free"]) != 0.0 or float(_balance["locked"]) != 0.0:
@@ -169,12 +168,19 @@ while True:
                                         sum_simbolo += simbolo_quantity * float(_price["price"])
                                 except:
                                     pass
+                        
                         current_simbolo_price_USD = cliente.get_symbol_ticker(symbol="BTCUSDT")["price"]
                         own_usd = sum_simbolo * float(current_simbolo_price_USD)
                         print(" Balance en billetera => ", simboloBalance, " %.8f  == " % sum_simbolo)
                         print("USDT %.8f " % own_usd)
                         time.sleep(10)
                         requestMinQtOrder = cliente.get_symbol_info(simbolo)
+                        symbol_info = cliente.get_symbol_info(simbolo)
+                        price_filter = next(filter(lambda f: f['filterType'] == 'PRICE_FILTER', symbol_info['filters']))
+                        min_price = float(price_filter['minPrice'])
+                        max_price = float(price_filter['maxPrice'])
+                        tick_size = float(price_filter['tickSize'])
+                        print(min_price, max_price, tick_size)
                         ordenes = cliente.get_open_orders(symbol=simbolo)
                         print(Fore.YELLOW, "Ordenes actuales abiertas")  # si devuelve [] está vacío
                         print(ordenes)
@@ -185,23 +191,19 @@ while True:
                             print("Precio de venta si SUBE   ", ordenes[1]['price'])
                             time.sleep(20)  # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
                             continue
-
                         if(len(ordenes) != 0):
                             print(Fore.RED, " Hay ordenes abiertas, no se compra")
                             time.sleep(10)
                             continue
-
                         # obtengo el precio del token que estoy tradeando
                         list_of_tickers = cliente.get_all_tickers()
                         for tick_2 in list_of_tickers:
                             if tick_2['symbol'] == simbolo:
                                 symbolPrice = float(tick_2['price'])
                         # fin obtener precio.
-
                         ma5 = _ma5_()
                         ma10 = _ma10_()
                         ma20 = _ma20_()
-
                         if(ma20 == 0):
                             continue
 
@@ -218,13 +220,12 @@ while True:
                         # importante acomodar los decimales de la moneda porque arroja Error Price Filter.
 
                         print(Fore.YELLOW, "--------", simbolo, "---------")
-                        print(" Precio actual de ", simbolo, "es: ", str(decimales.format(symbolPrice)))  # el .8 es la cantidad de decimales que no trae el símbolo
+                        print(" Precio actual de ", simbolo, "es: ", str(format(symbolPrice)))  # el .8 es la cantidad de decimales que no trae el símbolo
                         print("*******************************")
-                        print(Fore.GREEN, " Precio MA5 ", str(decimales.format(ma5)))
-                        print(Fore.YELLOW, " Precio MA10 ", str(decimales.format(ma10)))
-                        print(Fore.RED, " Precio MA20 ", str(decimales.format(ma20)))
-                        print(" Precio en que se va a comprar", str(decimales.format(ma20*0.995)))
-
+                        print(Fore.GREEN, " Precio MA5 ", str(format(ma5)))
+                        print(Fore.YELLOW, " Precio MA10 ", str(format(ma10)))
+                        print(Fore.RED, " Precio MA20 ", str((ma20)))
+                        print(" Precio en que se va a comprar", str((ma20*0.995)))
                         if (symbolPrice > ma5 and ma5 > ma10 and ma10 > ma20):
                             print(Fore.GREEN, "Comprando si no hay otras ordenes abiertas")
 
@@ -249,26 +250,31 @@ while True:
 
                             # Pongo orden OCO
                             print("COLOCANDO ORDEN OCO")
-                            print("StopLimitPrice >   ", str(decimales.format(symbolPrice*0.985)))
-                            print("Cantidad >   ", str(math.floor(sum_simbolo)))
-                            print("StopPrice >   ", str(decimales.format(symbolPrice*0.99)))
-                            print("Precio >   ", str(decimales.format(symbolPrice*1.01)))
+                            stop_limit_price = int(symbolPrice * 0.985)  # Ensure it's an integer
+                            stop_price = int(symbolPrice * 0.99)  # Ensure it's an integer
+                            price = int(symbolPrice * 1.01)  # Ensure it's an integer
+                            print("StopLimitPrice >   ", stop_limit_price)
+                            print("Cantidad >   ", order_local)
+                            print("StopPrice >   ", stop_price)
+                            print("Precio >   ", price)
+                            order_local_float = float(order_local)
+
+                            # Format it with a fixed number of decimal places
+                            formatted_string = "{:.4f}".format(order_local_float)
                             ordenOCO = cliente.create_oco_order(
                                 symbol=simbolo,
                                 side=SIDE_SELL,
-                                quantity=order_local,
-                                price=str(decimales.format(symbolPrice*1.01)),
-                                stopPrice=str(decimales.format(symbolPrice*0.99)),
-                                stopLimitPrice=str(decimales.format(symbolPrice*0.985)),
+                                quantity=formatted_string,
+                                price=price,
+                                stopPrice=stop_price,
+                                stopLimitPrice=stop_limit_price,
                                 stopLimitTimeInForce=TIME_IN_FORCE_GTC
                             )
                             time.sleep(20)
                             print(ordenOCO)
                               # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
-                            messageSold = f"Comprado exitosamente {cantidadOrden} {simbolo} al precio de {symbolPrice}"        
-                            insert_sold_log(1, simboloBalance, cantidadOrden, str(decimales.format(symbolPrice*1.01)), messageSold)
-
-
+                            messageSold = f"Comprado exitosamente {order_local} {simbolo} al precio de {symbolPrice}"
+                            insert_sold_log(1, simboloBalance, order_local, price, messageSold)
                         else:
                             print(Fore.RED, "No se cumplen las condiciones de compra")
                             time.sleep(20)  # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
@@ -276,7 +282,7 @@ while True:
                 except Exception as e:
                     print("Error in main loop: ", e)
                     messageSold = f'{e}'
-                    insert_sold_log(1, simboloBalance, cantidadOrden, str(decimales.format(symbolPrice*1.01)), messageSold)
+                    insert_sold_log(1, simboloBalance, cantidadOrden, price, messageSold)
                     time.sleep(60)
                     print("Bot is not activated. Skipping execution. 1")
                     conn.close()

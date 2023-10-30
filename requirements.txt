@@ -4,3 +4,8 @@ numpy
 colorama
 mysql-connector-python
 time
+python-vlc
+backtesting
+yfinance
+pandas
+backtrader
