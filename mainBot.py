@@ -186,7 +186,6 @@ while True:
                         print(ordenes)
                         if(len(ordenes) != 0):
                             print(len(ordenes))
-                            print("Cantidad a vender   ", str(math.floor(sum_simbolo)))
                             print("Precio de venta si BAJA   ", ordenes[0]['price'])
                             print("Precio de venta si SUBE   ", ordenes[1]['price'])
                             time.sleep(20)  # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
@@ -220,15 +219,14 @@ while True:
                         # importante acomodar los decimales de la moneda porque arroja Error Price Filter.
 
                         print(Fore.YELLOW, "--------", simbolo, "---------")
-                        print(" Precio actual de ", simbolo, "es: ", str(format(symbolPrice)))  # el .8 es la cantidad de decimales que no trae el símbolo
+                        print(" Precio actual de ", simbolo, "es: ", str((symbolPrice)))  # el .8 es la cantidad de decimales que no trae el símbolo
                         print("*******************************")
-                        print(Fore.GREEN, " Precio MA5 ", str(format(ma5)))
-                        print(Fore.YELLOW, " Precio MA10 ", str(format(ma10)))
+                        print(Fore.GREEN, " Precio MA5 ", str((ma5)))
+                        print(Fore.YELLOW, " Precio MA10 ", str((ma10)))
                         print(Fore.RED, " Precio MA20 ", str((ma20)))
                         print(" Precio en que se va a comprar", str((ma20*0.995)))
                         if (symbolPrice > ma5 and ma5 > ma10 and ma10 > ma20):
                             print(Fore.GREEN, "Comprando si no hay otras ordenes abiertas")
-
                             # ORDENES DE PRUEBA
                             # order = cliente.create_test_order(
                             # symbol = simbolo,
@@ -241,7 +239,6 @@ while True:
                             #
                             # orders = cliente(symbol=simbolo)
                             # print(orders)
-
                             order = cliente.order_market_buy(
                                 symbol=simbolo,
                                 quantity=cantidadOrden
@@ -271,7 +268,6 @@ while True:
                                 stopLimitTimeInForce=TIME_IN_FORCE_GTC
                             )
                             time.sleep(20)
-                            print(ordenOCO)
                               # mando el robot a dormir porque EN TEORÍA abrió un orden, dejamos que el mercado opere.
                             messageSold = f"Comprado exitosamente {order_local} {simbolo} al precio de {symbolPrice}"
                             insert_sold_log(1, simboloBalance, order_local, price, messageSold)
