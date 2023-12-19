@@ -14,11 +14,7 @@ from datetime import datetime
 
 # Database connection parameters
 db_params = {
-    'host': 'mysql-151901-0.cloudclusters.net',
-    'user': 'admin',
-    'password': 'eAZJ0Oeq',
-    'database': 'artifind',
-    'port': 19240,
+
 }
 
 
